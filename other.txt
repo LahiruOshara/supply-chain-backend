@@ -1,0 +1,25 @@
+//create db
+app.get('/createdb',(req,res)=>{
+    let sql="CREATE DATABASE supply_chain";
+    db.query(sql,(err,result)=>{
+        if(err) throw err;
+        console.log(result);
+        res.send("Database created.....");
+    });
+});
+
+//create table
+app.get('/create_user_table',(req,res)=>{
+    let sql="CREATE TABLE user(user_ID int AUTO_INCREMENT,password varchar(255) NOT NULL,user_type varchar(10) NOT NULL,name varchar(20) NOT NULL,email varchar(255) UNIQUE NOT NULL,PRIMARY KEY(user_ID))";
+    db.query(sql,(err,result)=>{
+        if(err) throw err;
+        console.log(result);
+        res.send("user table created");
+    });
+});
+
+//creating triggers
+
+CREATE TRIGGER agecheck BEFORE INSERT ON people FOR EACH ROW IF NEW.age < 0 THEN SET NEW.age = 0; END IF;
+
+INSERT INTO user SET VALUE(1,-1)

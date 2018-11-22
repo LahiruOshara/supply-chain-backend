@@ -1,0 +1,21 @@
+{
+  "name": "supply-chain",
+  "version": "0.2.0",
+  "description": "a mysql database connected via node-js and express-js ",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lahiru Oshara",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "mysql": "^2.16.0",
+    "bcryptjs":"*",
+    "jsonwebtoken":"*",
+    "body-parser":"*",
+    "passport":"*",
+    "passport-jwt":"*"
+  }
+}
