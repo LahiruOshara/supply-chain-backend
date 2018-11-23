@@ -15,19 +15,9 @@ module.exports.getProduct=function(product_ID,callback){
 }
 
 //work in progress
-module.exports.updateProduct=function(update,callback){
-    if(update.fragility!=undefined){
-        let sql=`UPDATE product SET fragility=${update.fragility} WHERE product_ID=${update.product_ID}`;
+module.exports.updateProduct=function(update,product_ID,callback){
+        let sql=`UPDATE product SET ? WHERE product_ID=${product_ID}`;
         db.query(sql,update,callback);
-    }
-    if(update.capacity!=undefined){
-        let sql=`UPDATE product SET fragility=${update.capacity} WHERE product_ID=${update.product_ID}`;
-        db.query(sql,update,callback);
-    }
-    if(update.price!=undefined){
-        let sql=`UPDATE product SET fragility=${update.price} WHERE product_ID=${update.product_ID}`;
-        db.query(sql,update,callback);
-    }
 }
 
 module.exports.removeProduct=function(product_ID,callback){

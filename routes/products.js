@@ -19,32 +19,31 @@ router.post('/addProduct', (req, res, next) => {
 
 router.post('/removeProduct', (req, res, next) => {
     let product_ID = req.body.product_ID;
-    Product.getProduct(product_ID,(err,data)=>{
-        if(err) throw err;
+    Product.getProduct(product_ID, (err, data) => {
+        if (err) throw err;
         if (!data[0]) {
             //console.log(err);
             console.log("not found!!!");
             res.json({ success: false, msg: "Product not found" });
             return;
         }
-        Product.removeProduct(product_ID,(err)=>{
-            if(err){
+        Product.removeProduct(product_ID, (err) => {
+            if (err) {
                 res.json({ success: false, msg: "Failed to remove product " + err.sqlMessage });
                 return;
             }
-            res.json({success: true, msg: " Product removed "})
+            res.json({ success: true, msg: " Product removed " })
         });
     });
 });
 
-router.post('/updateProduct',(req,res)=>{
-    let update=req.body;
-    Product.updateProduct(update,(err)=>{
-        if(err){
+router.post('/updateProduct', (req, res) => {
+    Product.updateProduct(req.body.update, req.body.product_ID, (err) => {
+        if (err) {
             res.json({ success: false, msg: "Failed to update product details" + err.sqlMessage });
             return;
         }
-        res.json({success:true,msg:"Product details updated"})
+        res.json({ success: true, msg: "Product details updated" })
     });
 });
 
