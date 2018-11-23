@@ -29,13 +29,12 @@ module.exports.addUser = function (newUser, callback) {
     });
 }
 
-module.exports.addLastlogin = function (date, user_ID, callback) {
+module.exports.addLastlogin = function (user_ID, callback) {
 
     /*UPDATE Customers
     SET ContactName='Juan'
     WHERE Country='Mexico';*/
-
-    let sql = `UPDATE User SET last_login=${date} WHERE user_ID=${user_ID}`
+    let sql = `UPDATE User SET last_login=NOW() WHERE user_ID=${user_ID}`
     db.query(sql, callback);
 }
 

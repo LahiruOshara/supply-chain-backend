@@ -8,54 +8,63 @@ const User = require("../models/user");
 
 //authenticate
 router.post('/login', (req, res, next) => {
-    const user_ID = req.body.user_ID;
+    const email = req.body.email;
     const password = req.body.password;
-    //console.log(user_ID);
-
-    User.getUserById(user_ID, (err, data) => {
-        if (err) throw err;
-        //console.log(user);
-        if (!data) {
-            //console.log(err);
-            res.json({ success: false, msg: "User not found" });
+    let user_ID = null;
+    //console.log(email);
+    User.getUserID(email, (err, data) => {
+        if (err) {
+            res.json({ success: false, msg: "Email not found " + err.sqlMessage });
+            return;
         }
-        //console.log(data[0].password);
-        User.comparePassword(password, data[0].password, (err, isMatch) => {
+        //console.log(data[0]);
+        this.user_ID = data[0].user_ID;
+        //console.log(this.user_ID);
+        User.getUserById(this.user_ID, (err, data) => {
             if (err) throw err;
-
-            if (isMatch) {
-                const token = jwt.sign(JSON.parse(JSON.stringify(data[0])), config.secret, {
-                    expiresIn: 3600
-                });
-                var date = new Date();
-                date = date.getUTCFullYear() + '-' +
-                    ('00' + (date.getUTCMonth() + 1)).slice(-2) + '-' +
-                    ('00' + date.getUTCDate()).slice(-2) + ' ' +
-                    ('00' + date.getUTCHours()).slice(-2) + ':' +
-                    ('00' + date.getUTCMinutes()).slice(-2) + ':' +
-                    ('00' + date.getUTCSeconds()).slice(-2);
-
-                User.addLastlogin(date, user_ID, (err, data) => {
-                    console.log("adding login time...");
-                    if (err) throw err;
-                    else console.log("login recorded");
-                });
-
-                res.json({
-                    success: true,
-                    token: token,
-                    user: {
-                        user_type: data[0].user_type,
-                        name: data[0].name,
-                        email: data[0].email
-                    }
-                });
-            } else {
-                return res.json({ success: false, msg: "wrong password" });
+            //console.log(user);
+            if (!data) {
+                //console.log(err);
+                res.json({ success: false, msg: "User not found" });
             }
+            //console.log(data[0].password);
+            User.comparePassword(password, data[0].password, (err, isMatch) => {
+                if (err) throw err;
+
+                if (isMatch) {
+                    const token = jwt.sign(JSON.parse(JSON.stringify(data[0])), config.secret, {
+                        expiresIn: 3600
+                    });
+                    User.addLastlogin(this.user_ID, (err, data) => {
+                        if (err) {
+                            User.rollbackFunc((err) => {
+                                if (err) {
+                                    res.json({ success: false, msg: "rollback error " + err.sqlMessage });
+                                    return;
+                                }
+                            });
+                            return;
+                        }
+                        console.log("login recorded");
+                        res.json({
+                            success: true,
+                            token: token,
+                            user: {
+                                user_type: data[0].user_type,
+                                name: data[0].name,
+                                email: data[0].email
+                            }
+                        });
+                    });
+                } else {
+                    return res.json({ success: false, msg: "wrong password" });
+                }
+            });
         });
     });
 });
+
+
 
 //register
 router.post('/register', (req, res, next) => {
@@ -109,7 +118,59 @@ router.post('/register', (req, res, next) => {
                         res.json({ success: false, msg: "Failed to register user " + err.sqlMessage });
                         return;
                     }
-                    User.commitTrans((err)=> {
+                    User.addLastlogin(this.user_ID, (err, data) => {
+                        if (err) {
+                            User.rollbackFunc((err) => {
+                                if (err) {
+                                    res.json({ success: false, msg: "rollback error " + err.sqlMessage });
+                                    return;
+                                }
+                            });
+                        }
+                        else console.log("login recorded");
+
+
+                        if (newUser.user_type === 'customer') {
+                            customer = { cus_ID: this.user_ID, home_no: req.body.home_no, city: req.body.city, state: req.body.state, postal_code: req.body.postal_code, type: req.body.type };
+                            User.addCustomer(customer, (err) => {
+                                if (err) {
+                                    User.rollbackFunc((err) => {
+                                        if (err) {
+                                            res.json({ success: false, msg: "rollback error " + err.sqlMessage });
+                                            return;
+                                        }
+                                        console.log("roleback done!");
+                                    });
+                                    res.json({ success: false, msg: "Failed to register customer " + err.sqlMessage });
+                                    return;
+                                }
+                                User.commitTrans((err) => {
+                                    if (err) {
+                                        User.rollbackFunc((err) => {
+                                            if (err) {
+                                                res.json({ success: false, msg: "rollback error " + err.sqlMessage });
+                                                return;
+                                            }
+                                            console.log("roleback done!");
+                                        });
+                                    }
+                                    console.log('Transaction Complete.');
+                                    res.json({ success: true, msg: "customer registerd " });
+                                });
+
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    });
+});
+
+
+
+module.exports = router;
+/**   User.commitTrans((err) => {
                         if (err) {
                             User.rollbackFunc((err) => {
                                 if (err) {
@@ -121,14 +182,4 @@ router.post('/register', (req, res, next) => {
                         }
                         console.log('Transaction Complete.');
                         res.json({ success: true, msg: "user registerd " });
-                    });
-                    
-                });
-            });
-        });
-    });
-});
-
-
-
-module.exports = router;
+                    }); */
