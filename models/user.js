@@ -58,6 +58,17 @@ module.exports.comparePassword = function (candidatePassword, hash, callback) {
 }
 
 
+module.exports.createTransaction=function(callback){
+    db.query("start transaction",callback);
+}
+
+module.exports.rollbackFunc=function(callback){
+    db.query("rollback",callback);
+}
+
+module.exports.commitTrans=function(callback){
+    db.query("commit",callback);
+}
 
 
 
@@ -161,7 +172,7 @@ module.exports.test_func = function (newUser, callback) {
             });
         });
     });
-}*/
+}
 
 
-
+*/
