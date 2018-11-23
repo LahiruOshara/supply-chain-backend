@@ -9,6 +9,11 @@ module.exports.addProduct = function (product,callback) {
     db.query(sql,product,callback);
 }
 
+module.exports.getProduct=function(product_ID,callback){
+    let sql = `SELECT * from product where product_ID=${product_ID}`;
+    db.query(sql,callback);
+}
+
 //work in progress
 module.exports.updateProduct=function(update,callback){
     if(update.fragility!=undefined){
@@ -26,6 +31,6 @@ module.exports.updateProduct=function(update,callback){
 }
 
 module.exports.removeProduct=function(product_ID,callback){
-    let sql=`DELETE FROM product WHERE product_ID=${product_ID}`;
-    db.query(sql,callback);
+        sql=`DELETE FROM product WHERE product_ID=${product_ID}`;
+        db.query(sql,callback);
 }

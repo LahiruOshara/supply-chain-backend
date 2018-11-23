@@ -17,6 +17,10 @@ router.post('/login', (req, res, next) => {
             res.json({ success: false, msg: "Email not found " + err.sqlMessage });
             return;
         }
+        if(!data[0]){
+            res.json({ success: false, msg: "User not found" });
+            return;
+        }
         //console.log(data[0]);
         this.user_ID = data[0].user_ID;
         //console.log(this.user_ID);
